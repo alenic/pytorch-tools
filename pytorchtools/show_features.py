@@ -72,7 +72,7 @@ def show_features(
         plt.show()
 
         if show_closest:
-            # proj_points._facecolors = copy.deepcopy(original_colors)
+            proj_points._facecolors = copy.deepcopy(original_colors)
             sort_indices = np.argsort(dist_matrix[current_index])[1:]
             for i in range(2):
                 proj_points._facecolors[sort_indices[i], :] = (1, 0, 0, 1)
@@ -84,14 +84,14 @@ def show_features(
                 plt.show()
 
     if show_closest:
-        assert original_emb is not None
+        assert x is not None
         if metric == "cosine":
-            original_emb_norm = original_emb / np.linalg.norm(
-                original_emb, axis=1
+            original_emb_norm = x / np.linalg.norm(
+                x, axis=1
             ).reshape(-1, 1)
             dist_matrix = -np.matmul(original_emb_norm, original_emb_norm.T)
         else:
-            dist_matrix = distance_matrix(original_emb, original_emb)
+            dist_matrix = distance_matrix(x, x)
 
     y_unique = np.unique(y)
     n_c = len(y_unique)
