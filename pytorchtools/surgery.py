@@ -1,5 +1,5 @@
 '''
-Simple layers monitor
+Layers monitor
 '''
 # edited by Alessandro Nicolosi - https://github.com/alenic
 
@@ -21,6 +21,11 @@ class ForwardMonitor:
         )
         if not self.layer_reached:
             raise ValueError("WARNIG! No " + name + " founded!")
+        
+    def get_layer(self, layer_name):
+        if layer_name not in self.layer:
+            raise ValueError(f"{layer_name} does not exits")
+        return self.layer[layer_name]
 
     def remove_layer(self, layer_name):
         self.handle[layer_name].remove()

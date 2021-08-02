@@ -1,28 +1,48 @@
 '''
-Simple features exploration tool
+Features exploration tool
 '''
 # edited by Alessandro Nicolosi - https://github.com/alenic
-
 import numpy as np
 import os
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 import matplotlib
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 from PIL import Image
 from scipy.spatial import distance_matrix
+import imp
+
+try:
+    imp.find_module("umap")
+    import umap
+except ImportError:
+    pass
 
 
 def show_features(
-    x, y, method="tsne", perplexity=15, path_images=None, show_closest=True, original_emb=None, metric="cosine", random_state=42
+    x,
+    y,
+    method="tsne",
+    perplexity=15,
+    path_images=None,
+    show_closest=False,
+    metric="cosine",
+    random_state=42,
 ):
-    matplotlib.use('TkAgg')
+    matplotlib.use("TkAgg")
+    original_emb = x
     # 2d reduce method
     if method == "tsne":
-        dim_red = TSNE(2, perplexity=perplexity, learning_rate=200, random_state=random_state)
+        dim_red = TSNE(
+            2, perplexity=perplexity, learning_rate=200, random_state=random_state
+        )
         x_2d = dim_red.fit_transform(x)
     elif method == "pca":
         dim_red = PCA(2)
+        x_2d = dim_red.fit_transform(x)
+    elif method == "umap":
+        dim_red = umap.UMAP()
         x_2d = dim_red.fit_transform(x)
     elif method is None:
         x_2d = x
@@ -42,7 +62,12 @@ def show_features(
 
         plt.figure()
         path = path_images[current_index]
-        plt.imshow(Image.open(path))
+        try:
+            img = Image.open(path)
+        except:
+            print(f"Error on open image {path}")
+            exit()
+        plt.imshow(img)
         plt.title(path)
         plt.show()
 
@@ -87,17 +112,32 @@ def show_features(
 
     global_fig, ax = plt.subplots()
 
+    color_np = np.zeros((x_2d.shape[0], 4))
+    class_label_np = np.zeros((x_2d.shape[0],), dtype=str)
+    legend_elements = []
     for i, class_label in enumerate(y_unique):
-        select_ind = y==class_label
-        ax.scatter(
-            x_2d[select_ind, 0],
-            x_2d[select_ind, 1],
-            color=colors[i],
-            picker=True,
-            label=str(class_label)
-        )
+        select_ind = y == class_label
+        color_np[select_ind, :] = colors[i, :]
+        legend_elements += [
+            Line2D(
+                [0],
+                [0],
+                marker="o",
+                color=colors[i, :],
+                label=str(class_label),
+                markersize=10,
+            )
+        ]
 
-    ax.legend()
+    ax.scatter(
+        x_2d[:, 0],
+        x_2d[:, 1],
+        color=color_np,
+        picker=True,
+    )
+
+    # Create the figure
+    ax.legend(handles=legend_elements)
 
     global_fig.canvas.mpl_connect("pick_event", on_pick)
 
