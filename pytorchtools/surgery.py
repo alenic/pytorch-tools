@@ -77,3 +77,10 @@ class ForwardMonitor:
             self._explore_and_hook(
                 module, name + "." + module_name, layer_name, layer_alias, htype, detach
             )
+
+def print_layers(model, name=""):
+    for module_name, module in model.named_children():
+        complete_name = name + "." + module_name
+
+        print(f"{complete_name} -> {type(module)}")
+        print_layers(module, name + "." + module_name)

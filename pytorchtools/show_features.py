@@ -29,6 +29,8 @@ def show_features(
     show_closest=False,
     metric="cosine",
     random_state=42,
+    title="Features",
+    show=True,
 ):
     matplotlib.use("TkAgg")
     original_emb = x
@@ -111,6 +113,7 @@ def show_features(
     colors[:, -1] = 1
 
     global_fig, ax = plt.subplots()
+    ax.set_title(title)
 
     color_np = np.zeros((x_2d.shape[0], 4))
     class_label_np = np.zeros((x_2d.shape[0],), dtype=str)
@@ -140,5 +143,6 @@ def show_features(
     ax.legend(handles=legend_elements)
 
     global_fig.canvas.mpl_connect("pick_event", on_pick)
-
-    plt.show()
+    
+    if show:
+        plt.show()

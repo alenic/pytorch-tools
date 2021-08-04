@@ -8,7 +8,7 @@ import torch
 import numpy as np
 from .surgery import ForwardMonitor
 
-def cls_inference(model, data_loader, image_index=0, get_score=False, device="cuda"):
+def cls_inference(model, data_loader, image_index=0, get_score=False, device="cuda", use_amp=False):
     model.eval()
     model.to(device)
 
@@ -18,7 +18,11 @@ def cls_inference(model, data_loader, image_index=0, get_score=False, device="cu
     with torch.no_grad():
         for data in data_loader:
             image_batch = data[image_index].to(device)
-            logits = model(image_batch)
+            if use_amp:
+                with torch.cuda.amp.autocast():
+                    logits = model(image_batch)
+            else:
+                logits = model(image_batch)
             logits_list.append(logits.cpu().numpy().squeeze())
             if get_score:
                 score_list.append(torch.softmax(logits, 1).cpu().numpy().squeeze())
@@ -29,7 +33,7 @@ def cls_inference(model, data_loader, image_index=0, get_score=False, device="cu
     return np.vstack(logits_list)
 
 
-def cls_inference_ensambles(model_list, data_loader, image_index=0, get_score=False, device="cuda"):
+def cls_inference_ensambles(model_list, data_loader, image_index=0, get_score=False, device="cuda", use_amp=False):
     assert isinstance(model_list, list)
 
     n_models = len(model_list)
@@ -41,7 +45,7 @@ def cls_inference_ensambles(model_list, data_loader, image_index=0, get_score=Fa
             logits_np, score_np = cls_inference(model_list[i], data_loader, image_index=image_index, get_score=True, device=device)
             score_list.append(score_np)
         else:
-            logits_np = cls_inference(model_list[i], data_loader, image_index=image_index, get_score=False, device=device)
+            logits_np = cls_inference(model_list[i], data_loader, image_index=image_index, get_score=False, device=device, use_amp=use_amp)
         
         logits_list.append(logits_np)
     
