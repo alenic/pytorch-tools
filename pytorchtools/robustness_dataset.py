@@ -4,16 +4,23 @@ import PIL
 import cv2
 import numpy as np
 
-rotation_interp = cv2.INTER_LINEAR
-rotation_border_mode = cv2.BORDER_REFLECT
+
+robustness_config = dict(
+    rotation_interp = cv2.INTER_LINEAR,
+    rotation_border_mode = cv2.BORDER_REFLECT
+)
 
 
-def distortion_rotate(image, magnitude):
-    angle = [0, 10, 20, 30, 40, 50][magnitude]
+
+def distortion_rotate(image, magnitude, cc=False):
+    if cc:
+        angle = [0, 10, 20, 30, 40, 50][magnitude]
+    else:
+        angle = [0, -10, -20, -30, -40, -50][magnitude]
     h,w,c = image.shape
     image_center = (h//2, w//2)
     rot_mat = cv2.getRotationMatrix2D(image_center, angle, 1.0)
-    image = cv2.warpAffine(image, rot_mat, (w, h), flags=rotation_interp, borderMode=rotation_border_mode)
+    image = cv2.warpAffine(image, rot_mat, (w, h), flags=robustness_config["rotation_interp"], borderMode=robustness_config["rotation_border_mode"])
     return image
 
 def distortion_jpeg_compression(image, magnitude):
@@ -44,8 +51,6 @@ def distortion_brightness(image, magnitude, high=True):
     
     return np.clip(image,0,255).astype(np.uint8)
 
-
-
 def distortion_high_brightness(image, magnitude):
     return distortion_brightness(image, magnitude, high=True)
 
@@ -70,6 +75,8 @@ class RobustnessDataset(Dataset):
     def get_distortion(self, distortion_str):
         if distortion_str == "rotate_c":
             return distortion_rotate
+        elif distortion_str == "rotate_cc":
+            return partial(distortion_rotate, cc=True)
         elif distortion_str == "jpeg_compression":
             return distortion_jpeg_compression
         elif distortion_str == "blur":
@@ -92,7 +99,7 @@ class RobustnessDataset(Dataset):
             image = self.distortion(image, self.magnitude)
 
         if self.transform is not None:
-            image = self.transform(image=image)["image"]
+            image = self.transform(image)
         
         item[self.image_id] = image
         return tuple(item)
