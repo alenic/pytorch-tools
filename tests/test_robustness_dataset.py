@@ -11,7 +11,7 @@ import albumentations as A
 from albumentations.pytorch.transforms import ToTensorV2
 import numpy as np
 
-dataset_root = "tests/imgs"
+dataset_root = "dataset_for_test"
 
 def cv2_loader(path):
     try:
