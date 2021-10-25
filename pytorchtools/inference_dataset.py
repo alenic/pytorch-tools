@@ -63,14 +63,6 @@ class InferenceDataset(datasets.vision.VisionDataset):
         if max_images is not None:
             self.samples = self.samples[:max_images]
 
-    def force_samples(self, samples):
-        """Force samples
-
-        Args:
-            samples (list): List of tuples: (image_path, target)
-        """
-        self.samples = samples
-
     def __getitem__(self, index):
         """
         Args:

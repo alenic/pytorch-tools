@@ -1,3 +1,8 @@
+'''
+Dataset for corruption evaluation
+'''
+# edited by Alessandro Nicolosi - https://github.com/alenic
+
 from torch.utils.data import Dataset
 from functools import partial
 import PIL
