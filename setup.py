@@ -15,6 +15,6 @@ setup(
     description = ("Usefule pytorch tools"),
     license = "MIT",
     url = "https://github.com/alenic/pytorch-tools",
-    packages=['pytorchtools'],
+    packages=setuptools.find_packages(),
     long_description=read('README.md'),
 )
