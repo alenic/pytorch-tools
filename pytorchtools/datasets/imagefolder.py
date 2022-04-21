@@ -61,6 +61,7 @@ class ImageFolderDataset(datasets.vision.VisionDataset):
         is_valid_file=None,
         max_samples_per_class=None,
         read_paths=False,
+        index=None
     ):
 
         super(ImageFolderDataset, self).__init__(
@@ -144,6 +145,8 @@ class ImageFolderDataset(datasets.vision.VisionDataset):
             self.samples = limited_samples
         else:
             self.samples = samples
+        
+        self.index = index
 
     def _find_classes(self, dir):
         """Finds the class folders in a dataset.
@@ -242,6 +245,8 @@ class ImageFolderDataset(datasets.vision.VisionDataset):
         Returns:
         tuple: (sample, target) where target is class_index of the target class.
         """
+        if self.index is not None:
+            index = self.index[index]
         path, target = self.samples[index]
         sample = self.loader(path)
         if self.transform is not None:
@@ -258,4 +263,6 @@ class ImageFolderDataset(datasets.vision.VisionDataset):
         return sample, target
 
     def __len__(self):
+        if self.index is not None:
+            return len(self.index)
         return len(self.samples)
