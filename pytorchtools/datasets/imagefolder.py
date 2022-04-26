@@ -97,6 +97,10 @@ class ImageFolderDataset(datasets.vision.VisionDataset):
             assert isinstance(
                 class_map_dict, dict
             ), "class_map_dict must be a python dictionary"
+            
+            for k,v in class_map_dict.items():
+                if not isinstance(v, list):
+                    class_map_dict[k] = [v]
 
         self.extensions = (
             ".jpg",
