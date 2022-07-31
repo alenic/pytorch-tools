@@ -7,6 +7,7 @@ Inference Classifier
 import torch
 import numpy as np
 from .surgery import ForwardMonitor
+import tqdm
 
 def cls_inference(model, data_loader, image_index=0, get_score=False, device="cuda", use_amp=False):
     model.eval()
@@ -58,7 +59,7 @@ def cls_inference_ensambles(model_list, data_loader, image_index=0, get_score=Fa
 def cls_inference_embedding(
     model,
     data_loader,
-    embedding_layer_name,
+    embedding_layer_name=None,
     image_index=0,
     get_logits=False,
     get_score=False,
@@ -71,8 +72,9 @@ def cls_inference_embedding(
     model.eval()
     model.to(device)
 
-    monitor = ForwardMonitor(model, verbose=verbose)
-    monitor.add_layer(embedding_layer_name)
+    if embedding_layer_name is not None:
+        monitor = ForwardMonitor(model, verbose=verbose)
+        monitor.add_layer(embedding_layer_name)
 
     embedding_list = []
     if get_logits:
@@ -80,18 +82,21 @@ def cls_inference_embedding(
     if get_score:
         score_list = []
     with torch.no_grad():
-        for data in data_loader:
+        for _, data in enumerate(tqdm.tqdm(data_loader)):
             image_batch = data[image_index].to(device)
-            logits = model(image_batch)
+            out = model(image_batch)
 
-            embedding_list.append(
-                monitor.get_layer(embedding_layer_name).cpu().numpy().squeeze()
-            )
+            if embedding_layer_name is not None:
+                emb = monitor.get_layer(embedding_layer_name).squeeze(-1).squeeze(-1).cpu().numpy()
 
+            else:
+                emb = out.squeeze(-1).squeeze(-1).cpu().numpy()
+
+            embedding_list.append(emb)
             if get_logits:
-                logits_list.append(logits.cpu().numpy().squeeze())
+                logits_list.append(out.squeeze(-1).squeeze(-1).cpu().numpy().squeeze())
             if get_score:
-                score_list.append(torch.softmax(logits, 1).cpu().numpy().squeeze())
+                score_list.append(torch.softmax(out, 1).squeeze(-1).squeeze(-1).cpu().numpy())
 
     return_values = []
 
