@@ -94,7 +94,7 @@ def cls_inference_embedding(
 
             embedding_list.append(emb)
             if get_logits:
-                logits_list.append(out.squeeze(-1).squeeze(-1).cpu().numpy().squeeze())
+                logits_list.append(out.squeeze(-1).squeeze(-1).cpu().numpy())
             if get_score:
                 score_list.append(torch.softmax(out, 1).squeeze(-1).squeeze(-1).cpu().numpy())
 
