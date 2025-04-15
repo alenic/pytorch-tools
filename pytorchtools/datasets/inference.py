@@ -1,12 +1,12 @@
-'''
+"""
 Useful Dataset
-'''
-# edited by Alessandro Nicolosi - https://github.com/alenic
-
+author: Alessandro Nicolosi - https://github.com/alenic/pytorch-tools
+"""
 
 import torchvision.datasets as datasets
 import os
 import numpy as np
+
 
 class InferenceDataset(datasets.vision.VisionDataset):
     def __init__(

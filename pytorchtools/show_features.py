@@ -11,10 +11,10 @@ import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 from PIL import Image
 from scipy.spatial import distance_matrix
-import imp
+import importlib
 
 try:
-    imp.find_module("umap")
+    importlib.util.find_spec("umap")
     import umap
 except ImportError:
     pass
