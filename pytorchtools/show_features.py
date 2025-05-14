@@ -1,6 +1,7 @@
-'''
+"""
 Features exploration tool
-'''
+"""
+
 # edited by Alessandro Nicolosi - https://github.com/alenic
 import numpy as np
 import os
@@ -22,7 +23,7 @@ except ImportError:
 
 def show_features(
     x,
-    y,
+    y=None,
     method="tsne",
     perplexity=15,
     path_images=None,
@@ -33,7 +34,7 @@ def show_features(
     show=True,
 ):
     matplotlib.use("TkAgg")
-    original_emb = x
+
     # 2d reduce method
     if method == "tsne":
         dim_red = TSNE(
@@ -88,14 +89,16 @@ def show_features(
     if show_closest:
         assert x is not None
         if metric == "cosine":
-            original_emb_norm = x / np.linalg.norm(
-                x, axis=1
-            ).reshape(-1, 1)
+            original_emb_norm = x / np.linalg.norm(x, axis=1).reshape(-1, 1)
             dist_matrix = -np.matmul(original_emb_norm, original_emb_norm.T)
         else:
             dist_matrix = distance_matrix(x, x)
+    if y:
+        y_unique = np.unique(y)
+    else:
+        y = np.zeros(x.shape[0])
+        y_unique = [0]
 
-    y_unique = np.unique(y)
     n_c = len(y_unique)
 
     i = 0
@@ -116,7 +119,7 @@ def show_features(
     ax.set_title(title)
 
     color_np = np.zeros((x_2d.shape[0], 4))
-    class_label_np = np.zeros((x_2d.shape[0],), dtype=str)
+
     legend_elements = []
     for i, class_label in enumerate(y_unique):
         select_ind = y == class_label
@@ -143,6 +146,6 @@ def show_features(
     ax.legend(handles=legend_elements)
 
     global_fig.canvas.mpl_connect("pick_event", on_pick)
-    
+
     if show:
         plt.show()

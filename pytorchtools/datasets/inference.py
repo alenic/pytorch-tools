@@ -63,6 +63,9 @@ class InferenceDataset(datasets.vision.VisionDataset):
         if max_images is not None:
             self.samples = self.samples[:max_images]
 
+    def get_paths(self):
+        return self.samples
+
     def __getitem__(self, index):
         """
         Args:
