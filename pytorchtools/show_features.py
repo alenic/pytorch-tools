@@ -93,7 +93,7 @@ def show_features(
             dist_matrix = -np.matmul(original_emb_norm, original_emb_norm.T)
         else:
             dist_matrix = distance_matrix(x, x)
-    if y:
+    if y is not None:
         y_unique = np.unique(y)
     else:
         y = np.zeros(x.shape[0])
