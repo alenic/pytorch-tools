@@ -1,15 +1,20 @@
-'''
+"""
 Inference Classifier
-'''
+"""
+
 # edited by Alessandro Nicolosi - https://github.com/alenic
 
 
 import torch
 import numpy as np
-from .surgery import ForwardMonitor
 import tqdm
 
-def cls_inference(model, data_loader, image_index=0, get_score=False, device="cuda", use_amp=False):
+from pytorchtools.surgery import ForwardMonitor
+
+
+def cls_inference(
+    model, data_loader, image_index=0, get_score=False, device="cuda", use_amp=False
+):
     model.eval()
     model.to(device)
 
@@ -30,11 +35,18 @@ def cls_inference(model, data_loader, image_index=0, get_score=False, device="cu
 
     if get_score:
         return np.vstack(logits_list), np.vstack(score_list)
-    
+
     return np.vstack(logits_list)
 
 
-def cls_inference_ensambles(model_list, data_loader, image_index=0, get_score=False, device="cuda", use_amp=False):
+def cls_inference_ensambles(
+    model_list,
+    data_loader,
+    image_index=0,
+    get_score=False,
+    device="cuda",
+    use_amp=False,
+):
     assert isinstance(model_list, list)
 
     n_models = len(model_list)
@@ -43,16 +55,29 @@ def cls_inference_ensambles(model_list, data_loader, image_index=0, get_score=Fa
         score_list = []
     for i in range(n_models):
         if get_score:
-            logits_np, score_np = cls_inference(model_list[i], data_loader, image_index=image_index, get_score=True, device=device)
+            logits_np, score_np = cls_inference(
+                model_list[i],
+                data_loader,
+                image_index=image_index,
+                get_score=True,
+                device=device,
+            )
             score_list.append(score_np)
         else:
-            logits_np = cls_inference(model_list[i], data_loader, image_index=image_index, get_score=False, device=device, use_amp=use_amp)
-        
+            logits_np = cls_inference(
+                model_list[i],
+                data_loader,
+                image_index=image_index,
+                get_score=False,
+                device=device,
+                use_amp=use_amp,
+            )
+
         logits_list.append(logits_np)
-    
+
     if get_score:
         return logits_list, score_list
-    
+
     return logits_list
 
 
@@ -87,7 +112,13 @@ def cls_inference_embedding(
             out = model(image_batch)
 
             if embedding_layer_name is not None:
-                emb = monitor.get_layer(embedding_layer_name).squeeze(-1).squeeze(-1).cpu().numpy()
+                emb = (
+                    monitor.get_layer(embedding_layer_name)
+                    .squeeze(-1)
+                    .squeeze(-1)
+                    .cpu()
+                    .numpy()
+                )
 
             else:
                 emb = out.squeeze(-1).squeeze(-1).cpu().numpy()
@@ -96,7 +127,9 @@ def cls_inference_embedding(
             if get_logits:
                 logits_list.append(out.squeeze(-1).squeeze(-1).cpu().numpy())
             if get_score:
-                score_list.append(torch.softmax(out, 1).squeeze(-1).squeeze(-1).cpu().numpy())
+                score_list.append(
+                    torch.softmax(out, 1).squeeze(-1).squeeze(-1).cpu().numpy()
+                )
 
     return_values = []
 

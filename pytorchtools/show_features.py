@@ -4,7 +4,6 @@ Features exploration tool
 
 # edited by Alessandro Nicolosi - https://github.com/alenic
 import numpy as np
-import os
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 import matplotlib
@@ -13,6 +12,7 @@ from matplotlib.lines import Line2D
 from PIL import Image
 from scipy.spatial import distance_matrix
 import importlib
+import copy  # Added missing import
 
 try:
     importlib.util.find_spec("umap")
@@ -33,32 +33,41 @@ def show_features(
     title="Features",
     show=True,
 ):
-    matplotlib.use("TkAgg")
+    try:
+        matplotlib.use("TkAgg")
+    except ImportError:
+        print("TkAgg backend not available. Using default backend.")
 
     # 2d reduce method
     if method == "tsne":
         dim_red = TSNE(
-            2, perplexity=perplexity, learning_rate=200, random_state=random_state
+            2,
+            perplexity=min(perplexity, x.shape[0] - 1),
+            learning_rate=200,
+            random_state=random_state,
         )
         x_2d = dim_red.fit_transform(x)
     elif method == "pca":
         dim_red = PCA(2)
         x_2d = dim_red.fit_transform(x)
     elif method == "umap":
-        dim_red = umap.UMAP()
+        dim_red = umap.UMAP(random_state=random_state)
         x_2d = dim_red.fit_transform(x)
     elif method is None:
         x_2d = x
     else:
         raise NotImplementedError("2d reduction method is not valid")
 
+    if path_images is not None and len(path_images) != len(x):  # Validate path_images
+        raise ValueError("Length of path_images must match the number of samples in x.")
+
     def on_pick(event):
         if path_images is None:
-            print("no images is associated to ", event.ind)
+            print("No images are associated with", event.ind)
             return
 
         current_index = event.ind[0]
-        # change point color
+        # Change point color
         if show_closest:
             proj_points._facecolors[current_index, :] = (1, 1, 0, 1)
             global_fig.canvas.draw()
@@ -67,9 +76,9 @@ def show_features(
         path = path_images[current_index]
         try:
             img = Image.open(path)
-        except:
-            print(f"Error on open image {path}")
-            exit()
+        except Exception as e:
+            print(f"Error opening image {path}: {e}. Skipping...")
+            return
         plt.imshow(img)
         plt.title(path)
         plt.show()
@@ -135,12 +144,13 @@ def show_features(
             )
         ]
 
-    ax.scatter(
+    proj_points = ax.scatter(
         x_2d[:, 0],
         x_2d[:, 1],
         color=color_np,
         picker=True,
     )
+    original_colors = proj_points._facecolors.copy()  # Define original_colors
 
     # Create the figure
     ax.legend(handles=legend_elements)

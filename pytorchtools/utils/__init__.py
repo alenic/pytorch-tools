@@ -1,1 +1,1 @@
-from .parallelize import *
+from pytorchtools.utils.config import *
