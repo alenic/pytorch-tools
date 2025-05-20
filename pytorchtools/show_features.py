@@ -46,13 +46,14 @@ def show_features(
             perplexity=min(perplexity, x.shape[0] - 1),
             learning_rate=200,
             random_state=random_state,
+            verbose=1,
         )
         x_2d = dim_red.fit_transform(x)
     elif method == "pca":
         dim_red = PCA(2)
         x_2d = dim_red.fit_transform(x)
     elif method == "umap":
-        dim_red = umap.UMAP(random_state=random_state)
+        dim_red = umap.UMAP(random_state=random_state, verbose=True)
         x_2d = dim_red.fit_transform(x)
     elif method is None:
         x_2d = x
