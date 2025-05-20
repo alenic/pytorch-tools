@@ -106,7 +106,7 @@ def cls_inference_embedding(
         logits_list = []
     if get_score:
         score_list = []
-    with torch.no_grad():
+    with torch.no_grad(), torch.autocast(device):
         for _, data in enumerate(tqdm.tqdm(data_loader)):
             image_batch = data[image_index].to(device)
             out = model(image_batch)
