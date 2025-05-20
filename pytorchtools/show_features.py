@@ -8,6 +8,7 @@ from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 import matplotlib
 import matplotlib.pyplot as plt
+from matplotlib import cm
 from matplotlib.lines import Line2D
 from PIL import Image
 from scipy.spatial import distance_matrix
@@ -109,20 +110,8 @@ def show_features(
         y_unique = [0]
 
     n_c = len(y_unique)
-
-    i = 0
-    colors = np.empty((n_c, 4))
-    colors[0, :] = np.random.rand(4) * 0.8
-    while i < n_c - 1:
-        color = np.random.rand(4) * 0.8
-
-        if np.any(np.matmul(colors[: i + 1, :], color) > 0.85):
-            continue
-
-        colors[i + 1, :] = color
-        i += 1
-
-    colors[:, -1] = 1
+    cmap = cm.get_cmap("tab20", n_c)
+    colors = cmap(np.arange(n_c))
 
     global_fig, ax = plt.subplots()
     ax.set_title(title)
