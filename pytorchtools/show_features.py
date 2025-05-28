@@ -35,10 +35,10 @@ def show_features(
     show=True,
     class_labels:List[str] = None
 ):
-    try:
-        matplotlib.use("TkAgg")
-    except ImportError:
-        print("TkAgg backend not available. Using default backend.")
+    # try:
+    #     matplotlib.use("TkAgg")
+    # except ImportError:
+    #     print("TkAgg backend not available. Using default backend.")
 
     # 2d reduce method
     if method == "tsne":
