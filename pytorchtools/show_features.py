@@ -14,7 +14,7 @@ from PIL import Image
 from scipy.spatial import distance_matrix
 import importlib
 import copy  # Added missing import
-
+from typing import List
 try:
     importlib.util.find_spec("umap")
     import umap
@@ -33,6 +33,7 @@ def show_features(
     random_state=42,
     title="Features",
     show=True,
+    class_labels:List[str] = None
 ):
     try:
         matplotlib.use("TkAgg")
@@ -120,8 +121,13 @@ def show_features(
     color_np = np.zeros((x_2d.shape[0], 4))
 
     legend_elements = []
-    for i, class_label in enumerate(y_unique):
-        select_ind = y == class_label
+
+    if class_labels is None:
+        class_labels = y_unique
+    
+
+    for i, y_label in enumerate(y_unique):
+        select_ind = y == y_label
         color_np[select_ind, :] = colors[i, :]
         legend_elements += [
             Line2D(
@@ -129,7 +135,7 @@ def show_features(
                 [0],
                 marker="o",
                 color=colors[i, :],
-                label=str(class_label),
+                label=str(class_labels[int(y_label)]),
                 markersize=10,
             )
         ]

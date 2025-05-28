@@ -21,9 +21,7 @@ def pickle_load(filename: str):
 
 
 class BaseModelConfig(BaseModel):
-    model_name: str = ""
-    repo_name: str = ""
-
+    name: str = ""
     test_transform: Any = None
 
 
