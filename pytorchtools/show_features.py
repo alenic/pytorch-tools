@@ -33,12 +33,14 @@ def show_features(
     random_state=42,
     title="Features",
     show=True,
-    class_labels:List[str] = None
+    class_labels:List[str] = None,
+    matplotlib_backend: str=None
 ):
-    # try:
-    #     matplotlib.use("TkAgg")
-    # except ImportError:
-    #     print("TkAgg backend not available. Using default backend.")
+    if matplotlib_backend:
+        try:
+            matplotlib.use(matplotlib_backend)
+        except ImportError:
+            print(f"{matplotlib_backend} backend not available. Using default backend.")
 
     # 2d reduce method
     if method == "tsne":
